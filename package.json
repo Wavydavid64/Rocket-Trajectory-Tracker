@@ -1,0 +1,21 @@
+{
+  "name": "rockettracker",
+  "version": "1.0.0",
+  "description": "package for rocket tracker",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start": "webpack-dev-server --port 8080"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zerender/Rocket-Trajectory-Tracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zerender/Rocket-Trajectory-Tracker/issues"
+  },
+  "homepage": "https://github.com/Zerender/Rocket-Trajectory-Tracker#readme"
+}
