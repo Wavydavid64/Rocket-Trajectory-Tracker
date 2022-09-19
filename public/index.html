@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
         <!-- Babylon.js -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
         <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
@@ -102,8 +106,7 @@ var createScene = function() {
         }
     }
 
-    
-
+    BABYLON.SceneLoader.ImportMesh("rocket", "https://raw.githubusercontent.com/Zerender/Rocket-Trajectory-Tracker/main/assets/", "BigRocketUpright.babylon", scene);
 
     // Texture and material
     var url = "https://www.babylonjs-playground.com/textures/ground.jpg";
@@ -148,6 +151,9 @@ var createScene = function() {
     }   // onload closing bracket
     return scene;
 }
+
+
+BABYLON.SceneLoader.ImportMeshAsync("smallestrocket", "C:\Users\david\OneDrive\Documents\GitHub\Adafruit_WebSerial_3DModelViewer", "smallestrocket.obj");
 
 
 // ******************
@@ -473,6 +479,5 @@ var noise;
             engine.resize();
         });
     </script>
-
 </body>
 </html>
