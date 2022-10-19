@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-        <title>Babylon.js sample code</title>
+        <title>Rocket Tracker</title>
 
         <!-- Babylon.js -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
@@ -107,7 +107,26 @@ var createScene = function() {
     }
 
     BABYLON.SceneLoader.ImportMesh("rocket", "https://raw.githubusercontent.com/Zerender/Rocket-Trajectory-Tracker/main/assets/", "BigRocketUpright.babylon", scene);
+    scene.onReadyObservable.add(() => {
+        const mesh = scene.getMeshByName('rocket')
+        mesh.rotationQuaternion = mesh.rotation.toQuaternion()
 
+        // animate movement
+        function moveTo(position) {
+            BABYLON.Animation.CreateAndStartAnimation('moveTo', mesh, 'position', 30, 120, mesh.position, position, 0);
+        }
+        const localPath = new BABYLON.Vector3(10, 100, 0);
+        moveTo(mesh.position.add(localPath))
+
+        function spinTo(quaternion) {
+            //var ease = new BABYLON.CubicEase();
+            //ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+            BABYLON.Animation.CreateAndStartAnimation('spinTo', mesh, 'rotationQuaternion', 30, 120, mesh.rotationQuaternion, quaternion, 0/*, ease*/);
+        }
+        var toAngle = -Math.PI/16;  // animate to this angle
+        var currentRotation = mesh.rotationQuaternion.toEulerAngles();
+        spinTo(new BABYLON.Quaternion.FromEulerAngles(currentRotation.x, currentRotation.y, toAngle));
+    })
     // Texture and material
     var url = "https://www.babylonjs-playground.com/textures/ground.jpg";
     var terrainTexture = new BABYLON.Texture(url, scene);
