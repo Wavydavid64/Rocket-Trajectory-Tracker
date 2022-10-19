@@ -63,7 +63,16 @@ document.head.appendChild(s);
 
 var createScene = function() {
     var scene = new BABYLON.Scene(engine);
-    var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, BABYLON.Vector3.Zero(), scene);
+
+    var box = BABYLON.Mesh.CreateBox('SkyBox', 1000, scene, false, BABYLON.Mesh.BACKSIDE);
+    box.material = new BABYLON.SkyMaterial('sky', scene);
+    box.material.inclination = -0.35;
+    
+    BABYLON.SceneLoader.ImportMesh("rocket", "https://raw.githubusercontent.com/Zerender/Rocket-Trajectory-Tracker/main/assets/", "BigRocketUpright.babylon", scene);
+    var tracker = BABYLON.Mesh.CreateCylinder("sphere1", 1, 1,1,8,8, scene);
+    tracker.position.y = 7;
+    var camera = new BABYLON.ArcRotateCamera("",0,0,80,tracker,scene);
+    //var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, scene.getMeshByName('rocket'), scene);
     camera.wheelPrecision = 10.0;
     camera.angularSensibilityX = 1000.0;
     camera.angularSensibilityY = 1000.0;
@@ -106,7 +115,6 @@ var createScene = function() {
         }
     }
 
-    BABYLON.SceneLoader.ImportMesh("rocket", "https://raw.githubusercontent.com/Zerender/Rocket-Trajectory-Tracker/main/assets/", "BigRocketUpright.babylon", scene);
     scene.onReadyObservable.add(() => {
         const mesh = scene.getMeshByName('rocket')
         mesh.rotationQuaternion = mesh.rotation.toQuaternion()
@@ -114,6 +122,7 @@ var createScene = function() {
         // animate movement
         function moveTo(position) {
             BABYLON.Animation.CreateAndStartAnimation('moveTo', mesh, 'position', 30, 120, mesh.position, position, 0);
+            BABYLON.Animation.CreateAndStartAnimation('moveTo', tracker, 'position', 30, 120, mesh.position, position, 0);
         }
         const localPath = new BABYLON.Vector3(10, 100, 0);
         moveTo(mesh.position.add(localPath))
@@ -126,7 +135,17 @@ var createScene = function() {
         var toAngle = -Math.PI/16;  // animate to this angle
         var currentRotation = mesh.rotationQuaternion.toEulerAngles();
         spinTo(new BABYLON.Quaternion.FromEulerAngles(currentRotation.x, currentRotation.y, toAngle));
+
+     //   var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+     //   var text1 = new BABYLON.GUI.TextBlock();
+     //   text1.text = "Current Height: " + mesh.absolutePosition.y;
+     //   text1.color = "white";
+     //   text1.fontSize = 24;
+      //  advancedTexture.addControl(text1); 
     })
+
+
+
     // Texture and material
     var url = "https://www.babylonjs-playground.com/textures/ground.jpg";
     var terrainTexture = new BABYLON.Texture(url, scene);
@@ -171,8 +190,6 @@ var createScene = function() {
     return scene;
 }
 
-
-BABYLON.SceneLoader.ImportMeshAsync("smallestrocket", "C:\Users\david\OneDrive\Documents\GitHub\Adafruit_WebSerial_3DModelViewer", "smallestrocket.obj");
 
 
 // ******************
