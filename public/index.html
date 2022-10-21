@@ -20,7 +20,7 @@
         <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
         <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
         <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-
+        
         <style>
             html, body {
                 overflow: hidden;
@@ -38,10 +38,21 @@
         </style>
     </head>
 <body>
+
+    <input type ="file" id="uploadfile" accept=".csv">
+    <button id="uploadconfirm">Upload File</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+
+    <!-- <script src="CSVParse.js"></script> -->
+    <!-- <script src="parse.js"></script> -->
     <canvas id="renderCanvas"></canvas>
     <script>
-        var canvas = document.getElementById("renderCanvas");
 
+
+
+        var canvas = document.getElementById("renderCanvas");
+        
         var startRenderLoop = function (engine, canvas) {
             engine.runRenderLoop(function () {
                 if (sceneToRender && sceneToRender.activeCamera) {
@@ -67,10 +78,11 @@ var createScene = function() {
     var box = BABYLON.Mesh.CreateBox('SkyBox', 1000, scene, false, BABYLON.Mesh.BACKSIDE);
     box.material = new BABYLON.SkyMaterial('sky', scene);
     box.material.inclination = -0.35;
-    
+
     BABYLON.SceneLoader.ImportMesh("rocket", "https://raw.githubusercontent.com/Zerender/Rocket-Trajectory-Tracker/main/assets/", "BigRocketUpright.babylon", scene);
     var tracker = BABYLON.Mesh.CreateCylinder("sphere1", 1, 1,1,8,8, scene);
     tracker.position.y = 7;
+    tracker.isVisible = false;
     var camera = new BABYLON.ArcRotateCamera("",0,0,80,tracker,scene);
     //var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, scene.getMeshByName('rocket'), scene);
     camera.wheelPrecision = 10.0;
@@ -116,32 +128,80 @@ var createScene = function() {
     }
 
     scene.onReadyObservable.add(() => {
+        const altitude = [];
+        const uploadconfirm = document.getElementById('uploadconfirm').addEventListener('click', () => {
+            Papa.parse(document.getElementById('uploadfile').files[0], 
+            {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    //csv = results;
+                    //console.log(results.data[0].altitude_ft)
+                    for (let i = 0; i < results.data.length; i++) {
+                            altitude.push(parseInt(results.data[i].altitude_ft));
+
+
+                    }
+                    const moves = []
+                    for (let i = 0; i < altitude.length; i++) {
+                        console.log(altitude[i])
+                        moves[i] = new BABYLON.Vector3(0, altitude[i], 0);
+                        setTimeout(()=>{moveTo(moves[i])}, (i+1)*50); 
+                    }
+                }
+                
+
+            });
+        });
+
         const mesh = scene.getMeshByName('rocket')
         mesh.rotationQuaternion = mesh.rotation.toQuaternion()
 
-        // animate movement
-        function moveTo(position) {
-            BABYLON.Animation.CreateAndStartAnimation('moveTo', mesh, 'position', 30, 120, mesh.position, position, 0);
-            BABYLON.Animation.CreateAndStartAnimation('moveTo', tracker, 'position', 30, 120, mesh.position, position, 0);
-        }
-        const localPath = new BABYLON.Vector3(10, 100, 0);
-        moveTo(mesh.position.add(localPath))
+       var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+       var text1 = new BABYLON.GUI.TextBlock();
+       text1.text = "Current Height: " + mesh.absolutePosition.y;
+       text1.color = "white";
+       text1.fontSize = 24;
+       text1.setPadding(0, 500, 500, 0)
+       advancedTexture.addControl(text1); 
+       
+     /*  var text2 = new BABYLON.GUI.TextBlock();
+       text2.text = "Longitude: "
+       text2.color = "white";
+       text2.fontSize = 24;
+       text2.setPadding(0, 500, 400, 0);
+       advancedTexture.addControl(text2); 
 
+       var text3 = new BABYLON.GUI.TextBlock();
+       text3.text = "Latitude: "
+       text3.color = "white";
+       text3.fontSize = 24;
+       text3.setPadding(0, 500, 300, 0);
+       advancedTexture.addControl(text3); 
+        // animate movement
+
+        */
+        function moveTo(position, long, lat) {
+            text1.text = "Current Height: " + Math.round(mesh.absolutePosition.y) + "\'";
+            // text2.text = "Logitude: " + long;
+            // text3.text = "Latitude: " + lat;
+            mesh.position = position;
+            tracker.position = position;
+        }
+       // const localPath = new BABYLON.Vector3(10, 100, 0);
+       // moveTo(mesh.position.add(localPath))
+       // const chungalPath = new BABYLON.Vector3(100, -30, 0);
+       // setTimeout(function(){moveTo(mesh.position.add(chungalPath))},4000); 
         function spinTo(quaternion) {
             //var ease = new BABYLON.CubicEase();
             //ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
             BABYLON.Animation.CreateAndStartAnimation('spinTo', mesh, 'rotationQuaternion', 30, 120, mesh.rotationQuaternion, quaternion, 0/*, ease*/);
         }
-        var toAngle = -Math.PI/16;  // animate to this angle
+        var toAngle = -Math.PI;  // animate to this angle
         var currentRotation = mesh.rotationQuaternion.toEulerAngles();
-        spinTo(new BABYLON.Quaternion.FromEulerAngles(currentRotation.x, currentRotation.y, toAngle));
+        // spinTo(new BABYLON.Quaternion.FromEulerAngles(currentRotation.x, currentRotation.y, toAngle));
 
-     //   var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-     //   var text1 = new BABYLON.GUI.TextBlock();
-     //   text1.text = "Current Height: " + mesh.absolutePosition.y;
-     //   text1.color = "white";
-     //   text1.fontSize = 24;
-      //  advancedTexture.addControl(text1); 
     })
 
 
