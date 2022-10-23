@@ -155,12 +155,13 @@ var createScene = function() {
             });
         });
 
+        
         const mesh = scene.getMeshByName('rocket')
         mesh.rotationQuaternion = mesh.rotation.toQuaternion()
 
        var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
        var text1 = new BABYLON.GUI.TextBlock();
-       text1.text = "Current Height: " + mesh.absolutePosition.y;
+       text1.text = "Current Height: 0";
        text1.color = "white";
        text1.fontSize = 24;
        text1.setPadding(0, 500, 500, 0)
@@ -182,10 +183,14 @@ var createScene = function() {
         // animate movement
 
         */
-        function moveTo(position, long, lat) {
-            text1.text = "Current Height: " + Math.round(mesh.absolutePosition.y) + "\'";
+        function moveTo(position) {
+            let height = Math.round(mesh.absolutePosition.y);
+            text1.text = "Current Height: " + height + "\'";
             // text2.text = "Logitude: " + long;
             // text3.text = "Latitude: " + lat;
+            if (position.y < 0) {
+                position = new BABYLON.Vector3(0, 7, 0);
+            }
             mesh.position = position;
             tracker.position = position;
         }
@@ -196,6 +201,8 @@ var createScene = function() {
         function spinTo(quaternion) {
             //var ease = new BABYLON.CubicEase();
             //ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+            mesh.rotationQuaternion = quaternion;
+            tracker.rotationQuaternion = quaternion;
             BABYLON.Animation.CreateAndStartAnimation('spinTo', mesh, 'rotationQuaternion', 30, 120, mesh.rotationQuaternion, quaternion, 0/*, ease*/);
         }
         var toAngle = -Math.PI;  // animate to this angle
